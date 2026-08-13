@@ -32,16 +32,23 @@ def health():
 #GET all tasks
 @app.get("/tasks", summary="Get all tasks", description="Returns a list of all tasks")
 def get_tasks():
-    return tasks
+    database.cursor.execute("SELECT * FROM tasks")
+    tasks = database.cursor.fetchall()
+
+    task_list = []
+    for row in tasks:
+        task_list.append({"id": row[0],"title": row[1]} )
+    return task_list
 
 #GET single task
 @app.get("/tasks/{task_id}")
 def get_task(task_id: int):
-    for task in tasks:
-        if task["id"] == task_id:
-            return task
-        
-    raise HTTPException(status_code=404, detail="Task not found")
+    database.cursor.execute("SELECT * FROM tasks WHERE id = ?", (task_id,))
+    task = database.cursor.fetchone()
+
+    if task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return {"id": task[0], "title": task[1]}
 
 #POST new task
 @app.post("/tasks", status_code=201, summary="Create a new task", description="Creates a new task with the provided title")

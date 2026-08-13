@@ -1,6 +1,6 @@
 import sqlite3
 
-connection = sqlite3.connect('tasks.db')
+connection = sqlite3.connect('tasks.db', check_same_thread=False)
 cursor = connection.cursor()
 
 cursor.execute('''
