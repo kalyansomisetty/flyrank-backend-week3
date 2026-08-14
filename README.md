@@ -242,3 +242,8 @@ Week3/
 - Stage 3 – Update and delete with SQL ✅
 - Stage 4 – Explore SQLite and SQL queries ✅
 - Stage 5 – Database documentation ✅
+
+## Author
+
+**Venkata Naga Sri Kalyan Somisetty**  
+Backend AI Engineer Intern – FlyRank AI
