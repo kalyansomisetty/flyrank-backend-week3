@@ -37,7 +37,7 @@ def get_tasks():
 
     task_list = []
     for row in tasks:
-        task_list.append({"id": row[0],"title": row[1]} )
+        task_list.append({"id": row[0],"title": row[1], "done": bool(row[2])} )
     return task_list
 
 #GET single task
@@ -48,7 +48,7 @@ def get_task(task_id: int):
 
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
-    return {"id": task[0], "title": task[1]}
+    return {"id": task[0], "title": task[1], "done": bool(task[2])}
 
 #POST new task
 @app.post("/tasks", status_code=201, summary="Create a new task", description="Creates a new task with the provided title")
@@ -57,12 +57,14 @@ def create_task(task: TaskCreate):
     if task.title.strip() == "":
         raise HTTPException(status_code=400, detail="Title cannot be empty")
 
+    database.cursor.execute("INSERT INTO tasks (title, done) VALUES (?, ?)", (task.title, 0))
+    database.connection.commit()
+
     new_task = {
-        "id": len(tasks) + 1,
+        "id" : database.cursor.lastrowid,
         "title": task.title,
         "done": False
     }
-    tasks.append(new_task)
     return new_task
 
 #PUT update task
