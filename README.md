@@ -203,11 +203,7 @@ Changes made directly to the SQLite database are reflected by the API because th
 
 The screenshot below shows the `tasks` table stored in SQLite.
 
-<!-- Add your database viewer screenshot here -->
-
-```md
 ![SQLite Tasks Database](screenshots/database.png)
-```
 
 ## What I Learned
 
