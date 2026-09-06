@@ -80,6 +80,18 @@ Invalid task titles return a `400 Bad Request` response.
 
 ## How to Run the Project
 
+## PostgreSQL with Docker
+
+Start the PostgreSQL database container:
+
+```bash
+docker run --name taskdb \
+  -e POSTGRES_PASSWORD=dev \
+  -e POSTGRES_DB=tasks \
+  -p 5432:5432 \
+  -v taskdata:/var/lib/postgresql \
+  -d postgres
+
 ### 1. Clone the repository
 
 ```bash
