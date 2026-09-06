@@ -1,23 +1,36 @@
-import sqlite3
+import os
 
-connection = sqlite3.connect('tasks.db', check_same_thread=False)
+import psycopg
+from dotenv import load_dotenv
+
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+connection = psycopg.connect(DATABASE_URL)
 cursor = connection.cursor()
 
-cursor.execute('''
+cursor.execute("""
     CREATE TABLE IF NOT EXISTS tasks (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         title TEXT,
-        done BOOLEAN  )''')
+        done BOOLEAN
+    )
+""")
 
 cursor.execute("SELECT COUNT(*) FROM tasks")
 task_count = cursor.fetchone()[0]
 
 if task_count == 0:
     example_tasks = [
-        ("Buy milk", 0),
-        ("Study FastAPI", 0),
-        ("Exercise", 0)
+        ("Buy milk", False),
+        ("Study FastAPI", False),
+        ("Exercise", False)
     ]
-    cursor.executemany("INSERT INTO tasks (title, done) VALUES (?, ?)", example_tasks)
 
-connection.commit() 
+    cursor.executemany(
+        "INSERT INTO tasks (title, done) VALUES (%s, %s)",
+        example_tasks
+    )
+
+connection.commit()
