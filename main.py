@@ -43,12 +43,21 @@ def get_tasks():
 #GET single task
 @app.get("/tasks/{task_id}")
 def get_task(task_id: int):
-    database.cursor.execute("SELECT * FROM tasks WHERE id = ?", (task_id,))
+    database.cursor.execute(
+        "SELECT * FROM tasks WHERE id = %s",
+        (task_id,)
+    )
+
     task = database.cursor.fetchone()
 
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
-    return {"id": task[0], "title": task[1], "done": bool(task[2])}
+
+    return {
+        "id": task[0],
+        "title": task[1],
+        "done": bool(task[2])
+    }
 
 #POST new task
 @app.post("/tasks", status_code=201, summary="Create a new task", description="Creates a new task with the provided title")
