@@ -66,20 +66,29 @@ def create_task(task: TaskCreate):
     if task.title.strip() == "":
         raise HTTPException(status_code=400, detail="Title cannot be empty")
 
-    database.cursor.execute("INSERT INTO tasks (title, done) VALUES (?, ?)", (task.title, 0))
+    database.cursor.execute(
+        "INSERT INTO tasks (title, done) VALUES (%s, %s) RETURNING *",
+        (task.title, False)
+    )
+
+    new_task = database.cursor.fetchone()
     database.connection.commit()
 
-    new_task = {
-        "id" : database.cursor.lastrowid,
-        "title": task.title,
-        "done": False
+    return {
+        "id": new_task[0],
+        "title": new_task[1],
+        "done": bool(new_task[2])
     }
-    return new_task
 
 #PUT update task
 @app.put("/tasks/{task_id}", summary="Update a task", description="Updates the title and done status of an existing task")
 def update_task(task_id: int, updated_task: TaskUpdate):
-    database.cursor.execute("SELECT * FROM tasks WHERE id = ?", (task_id,))
+
+    database.cursor.execute(
+        "SELECT * FROM tasks WHERE id = %s",
+        (task_id,)
+    )
+
     task = database.cursor.fetchone()
 
     if task is None:
@@ -88,19 +97,36 @@ def update_task(task_id: int, updated_task: TaskUpdate):
     if updated_task.title.strip() == "":
         raise HTTPException(status_code=400, detail="Title cannot be empty")
 
-    database.cursor.execute("UPDATE tasks SET title = ?, done = ? WHERE id = ?", (updated_task.title, updated_task.done, task_id))
+    database.cursor.execute(
+        "UPDATE tasks SET title = %s, done = %s WHERE id = %s",
+        (updated_task.title, updated_task.done, task_id)
+    )
+
     database.connection.commit()
 
-    return {"id": task_id, "title": updated_task.title, "done": updated_task.done}
+    return {
+        "id": task_id,
+        "title": updated_task.title,
+        "done": updated_task.done
+    }
 
 #DELETE task
 @app.delete("/tasks/{task_id}", status_code=204, summary="Delete a task", description="Deletes an existing task")
 def delete_task(task_id: int):
-    database.cursor.execute("SELECT * FROM tasks WHERE id = ?", (task_id,))
+
+    database.cursor.execute(
+        "SELECT * FROM tasks WHERE id = %s",
+        (task_id,)
+    )
+
     task = database.cursor.fetchone()
 
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
-    
-    database.cursor.execute("DELETE FROM tasks WHERE id = ?", (task_id,))
+
+    database.cursor.execute(
+        "DELETE FROM tasks WHERE id = %s",
+        (task_id,)
+    )
+
     database.connection.commit()
